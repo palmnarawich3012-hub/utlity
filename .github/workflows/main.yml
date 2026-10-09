@@ -1,0 +1,38 @@
+name: Build Minecraft Mod
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. ดึงซอร์สโค้ดจาก Repository
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 2. ตั้งค่า Java Development Kit (JDK) ตามที่โปรเจกต์ใช้งาน (ปกติคือ Java 17 สำหรับ Fabric 1.18 - 1.20+)
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      # 3. ให้สิทธิ์การใช้งาน Gradle Wrapper
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      # 4. รันคำสั่ง Build เพื่อคอมไพล์ Mod และสร้างไฟล์ .jar
+      - name: Build with Gradle
+        run: ./gradlew build
+
+      # 5. อัปโหลดไฟล์ .jar ที่คอมไพล์แล้วเป็น Artifact ของ GitHub
+      - name: Upload Build Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: police-utility-mod-jar
+          path: build/libs/*.jar
