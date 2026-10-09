@@ -1,0 +1,9 @@
+{
+ "item.policeutility.flashlight": "Police Flashlight",
+ "item.policeutility.handcuffs": "Handcuffs",
+ "item.policeutility.taser": "Taser",
+ "item.policeutility.radio": "Police Radio",
+ "item.policeutility.utility_belt": "Utility Belt",
+ "itemGroup.policeutility": "Police Utility",
+ "effect.policeutility.handcuffed": "Handcuffed"
+}

@@ -1,0 +1,9 @@
+{
+ "item.policeutility.flashlight": "ไฟฉายตำรวจ",
+ "item.policeutility.handcuffs": "กุญแจมือ",
+ "item.policeutility.taser": "เทเซอร์",
+ "item.policeutility.radio": "วิทยุสื่อสาร",
+ "item.policeutility.utility_belt": "เข็มขัดอุปกรณ์ตำรวจ",
+ "itemGroup.policeutility": "อุปกรณ์ตำรวจ",
+ "effect.policeutility.handcuffed": "ถูกใส่กุญแจมือ"
+}

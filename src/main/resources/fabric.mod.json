@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "id": "policeutility",
+  "version": "${version}",
+  "name": "Police Utility",
+  "description": "Flashlight, handcuffs, taser, radio and a utility belt for police roleplay.",
+  "authors": [
+    "You"
+  ],
+  "license": "MIT",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "com.example.policeutility.PoliceUtilityMod"
+    ],
+    "client": [
+      "com.example.policeutility.client.PoliceUtilityClient"
+    ]
+  },
+  "depends": {
+    "fabricloader": ">=0.14.21",
+    "minecraft": "~1.20.1",
+    "java": ">=17",
+    "fabric-api": "*"
+  }
+}
