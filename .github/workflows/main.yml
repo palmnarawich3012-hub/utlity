@@ -1,4 +1,4 @@
-name: Build Minecraft Mod 100%
+name: Build Police Utility Mod
 
 on:
   push:
@@ -8,15 +8,13 @@ on:
 
 jobs:
   build:
-    name: Build Fabric Mod with Auto-Path
+    name: Build Mod (Java 17)
     runs-on: ubuntu-latest
 
     steps:
-      # 1. ดึงซอร์สโค้ดทั้งหมดลงมา
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # 2. ตั้งค่า Java 17
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
@@ -24,28 +22,16 @@ jobs:
           distribution: 'temurin'
           cache: 'gradle'
 
-      # 3. ขั้นตอนอัจฉริยะ: ค้นหาโฟลเดอร์ที่มีไฟล์ gradlew และเข้าไปรัน Build ทันที (แก้ปัญหาหาไฟล์ไม่เจอ 100%)
-      - name: Find and Build with Gradle
-        run: |
-          if [ -f "./gradlew" ]; then
-            echo "Found gradlew at root directory"
-            chmod +x gradlew
-            ./gradlew clean build
-          elif [ -f "./police-utility-mod/gradlew" ]; then
-            echo "Found gradlew inside police-utility-mod directory"
-            cd police-utility-mod
-            chmod +x gradlew
-            ./gradlew clean build
-          else
-            echo "Error: gradlew not found!"
-            exit 1
-          fi
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+        working-directory: police-utility-mod
 
-      # 4. อัปโหลดไฟล์ .jar ที่สร้างเสร็จแล้ว (รองรับทั้งกรณีอยู่ข้างในหรือข้างนอก)
+      - name: Build with Gradle
+        run: ./gradlew clean build
+        working-directory: police-utility-mod
+
       - name: Upload Build Artifact
         uses: actions/upload-artifact@v4
         with:
           name: police-utility-mod-jar
-          path: |
-            build/libs/*.jar
-            police-utility-mod/build/libs/*.jar
+          path: police-utility-mod/build/libs/*.jar
