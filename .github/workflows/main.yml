@@ -1,32 +1,40 @@
-name: Build Minecraft Mod
+name: Build Police Utility Mod
 
 on:
   push:
-    branches: [ "main", "master", "main.yml" ]
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
 
 jobs:
   build:
+    name: Build Mod (Java 17)
     runs-on: ubuntu-latest
 
     steps:
+      # 1. ดึงซอร์สโค้ดล่าสุดจาก Repository
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      # 2. ตั้งค่า Java Development Kit (Temurin JDK 17) สำหรับ Fabric Mod
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
           java-version: '17'
           distribution: 'temurin'
+          cache: 'gradle' # เปิดใช้งาน Gradle Cache เพื่อช่วยให้การ Build รอบถัดไปเร็วขึ้น
 
-      # เพิ่ม working-directory หากโปรเจกต์อยู่ในโฟลเดอร์ย่อย police-utility-mod
+      # 3. ให้สิทธิ์การใช้งานแก่ไฟล์ gradlew (ภายในโฟลเดอร์ของโปรเจกต์)
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
         working-directory: ./police-utility-mod
 
+      # 4. รันคำสั่ง Clean และ Build เพื่อคอมไพล์ไฟล์ .jar
       - name: Build with Gradle
-        run: ./gradlew build
+        run: ./gradlew clean build
         working-directory: ./police-utility-mod
 
+      # 5. บันทึกและอัปโหลดไฟล์ .jar ที่ได้เก็บไว้เป็น Artifact ของ GitHub
       - name: Upload Build Artifact
         uses: actions/upload-artifact@v4
         with:
