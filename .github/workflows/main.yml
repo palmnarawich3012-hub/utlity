@@ -1,37 +1,57 @@
-name: Build Police Utility Mod
+name: Build mod
 
 on:
   push:
-    branches: [ "main", "master" ]
+    branches: [ main, master ]
+    tags: [ 'v*' ]
   pull_request:
-    branches: [ "main", "master" ]
+  workflow_dispatch:        # กดรันเองได้จากแท็บ Actions
+
+permissions:
+  contents: write           # ใช้ตอนสร้าง Release จาก tag
 
 jobs:
   build:
-    name: Build Mod (Java 17)
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout repository
+      - name: Checkout
         uses: actions/checkout@v4
 
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
-          java-version: '17'
-          distribution: 'temurin'
-          cache: 'gradle'
+          distribution: temurin
+          java-version: 17
 
-      - name: Grant execute permission for gradlew
-        run: chmod +x gradlew
-        working-directory: police-utility-mod
+      - name: Set up Gradle 8.6
+        uses: gradle/actions/setup-gradle@v3
+        with:
+          gradle-version: '8.6'
 
-      - name: Build with Gradle
-        run: ./gradlew clean build
-        working-directory: police-utility-mod
+      - name: Build
+        run: gradle build --stacktrace
 
-      - name: Upload Build Artifact
+      - name: Upload jar
+        if: success()
         uses: actions/upload-artifact@v4
         with:
-          name: police-utility-mod-jar
-          path: police-utility-mod/build/libs/*.jar
+          name: police-utility-jar
+          path: |
+            build/libs/*.jar
+            !build/libs/*-sources.jar
+            !build/libs/*-dev.jar
+
+      - name: Upload build report (on failure)
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-report
+          path: build/reports/
+
+      - name: Create GitHub Release (tag v*)
+        if: startsWith(github.ref, 'refs/tags/v') && success()
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            build/libs/*.jar
+          generate_release_notes: true
