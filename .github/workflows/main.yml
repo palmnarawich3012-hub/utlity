@@ -1,4 +1,4 @@
-name: Build Police Utility Mod
+name: Build Minecraft Mod 100%
 
 on:
   push:
@@ -8,35 +8,44 @@ on:
 
 jobs:
   build:
-    name: Build Mod (Java 17)
+    name: Build Fabric Mod with Auto-Path
     runs-on: ubuntu-latest
 
     steps:
-      # 1. ดึงซอร์สโค้ดล่าสุดจาก Repository
+      # 1. ดึงซอร์สโค้ดทั้งหมดลงมา
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # 2. ตั้งค่า Java Development Kit (Temurin JDK 17) สำหรับ Fabric Mod
+      # 2. ตั้งค่า Java 17
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
           java-version: '17'
           distribution: 'temurin'
-          cache: 'gradle' # เปิดใช้งาน Gradle Cache เพื่อช่วยให้การ Build รอบถัดไปเร็วขึ้น
+          cache: 'gradle'
 
-      # 3. ให้สิทธิ์การใช้งานแก่ไฟล์ gradlew (ภายในโฟลเดอร์ของโปรเจกต์)
-      - name: Grant execute permission for gradlew
-        run: chmod +x gradlew
-        working-directory: ./police-utility-mod
+      # 3. ขั้นตอนอัจฉริยะ: ค้นหาโฟลเดอร์ที่มีไฟล์ gradlew และเข้าไปรัน Build ทันที (แก้ปัญหาหาไฟล์ไม่เจอ 100%)
+      - name: Find and Build with Gradle
+        run: |
+          if [ -f "./gradlew" ]; then
+            echo "Found gradlew at root directory"
+            chmod +x gradlew
+            ./gradlew clean build
+          elif [ -f "./police-utility-mod/gradlew" ]; then
+            echo "Found gradlew inside police-utility-mod directory"
+            cd police-utility-mod
+            chmod +x gradlew
+            ./gradlew clean build
+          else
+            echo "Error: gradlew not found!"
+            exit 1
+          fi
 
-      # 4. รันคำสั่ง Clean และ Build เพื่อคอมไพล์ไฟล์ .jar
-      - name: Build with Gradle
-        run: ./gradlew clean build
-        working-directory: ./police-utility-mod
-
-      # 5. บันทึกและอัปโหลดไฟล์ .jar ที่ได้เก็บไว้เป็น Artifact ของ GitHub
+      # 4. อัปโหลดไฟล์ .jar ที่สร้างเสร็จแล้ว (รองรับทั้งกรณีอยู่ข้างในหรือข้างนอก)
       - name: Upload Build Artifact
         uses: actions/upload-artifact@v4
         with:
           name: police-utility-mod-jar
-          path: police-utility-mod/build/libs/*.jar
+          path: |
+            build/libs/*.jar
+            police-utility-mod/build/libs/*.jar
